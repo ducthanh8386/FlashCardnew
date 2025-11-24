@@ -16,7 +16,7 @@ public class Main {
         FlashCardManager model = new FlashCardManager();
         CardControl controller = new CardControl(model);
 
-        // Khởi tạo View và truyền Controller vào
+
 
         SwingUtilities.invokeLater(() -> {
             FlashCardAppView view = new FlashCardAppView(controller);
@@ -65,7 +65,7 @@ public class Main {
                 }
             });
 
-            // --- Xử lý sự kiện Hiện nghĩa ---
+            // hiện nghĩa
             view.getShowAnswerButton().addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -73,7 +73,7 @@ public class Main {
                 }
             });
 
-            // --- Xử lý sự kiện Thẻ tiếp theo ---
+
             view.getNextCardButton().addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {

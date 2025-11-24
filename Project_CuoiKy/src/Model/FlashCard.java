@@ -29,8 +29,8 @@ public class FlashCard {
 
     @Override
     public String toString() {
-        return  "Tieng Anh: " +" " +  englishWord +
-                "\nTieng Viet: " +" "+ vietnameseMeaning +
+        return  "Tiếng Anh : " +" " +  englishWord +
+                "\nTiếng Việt: " +" "+ vietnameseMeaning +
                 "\n " ;
     }
     @Override
@@ -43,8 +43,7 @@ public class FlashCard {
                 Objects.equals(vietnameseMeaning, flashCard.vietnameseMeaning);
     }
 
-    // Lưu ý: Mặc dù không bắt buộc cho remove(), nhưng luôn nên ghi đè cả hashCode()
-    // khi ghi đè equals(), đặc biệt nếu sử dụng trong HashMaps/HashSets.
+
     @Override
     public int hashCode() {
         return Objects.hash(englishWord, vietnameseMeaning);

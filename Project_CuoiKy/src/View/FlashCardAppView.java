@@ -33,12 +33,12 @@ public class FlashCardAppView extends JFrame {
         JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 10));
 
 
-        // ====== CỘT BÊN TRÁI ======
+        // Cột trái
         JPanel leftColumnPanel = new JPanel();
         leftColumnPanel.setLayout(new BoxLayout(leftColumnPanel, BoxLayout.Y_AXIS));
 
 
-        // --- Panel Nhập Thẻ ---
+        // Nhập thẻ
         JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new GridBagLayout());
         inputPanel.setBorder(BorderFactory.createTitledBorder("Nhập Thẻ Mới"));
@@ -49,8 +49,6 @@ public class FlashCardAppView extends JFrame {
         inputPanel.setMaximumSize(new Dimension(350, 180));
 
 
-
-        // Label + TextField Tiếng Anh
         gbc.gridx = 0; gbc.gridy = 0;
         inputPanel.add(new JLabel("Tiếng Anh:"), gbc);
 
@@ -67,7 +65,6 @@ public class FlashCardAppView extends JFrame {
         inputPanel.add(vietnameseInputField, gbc);
 
 
-        // --- Panel nút ---
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
         JPanel buttonInputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
 
@@ -80,13 +77,12 @@ public class FlashCardAppView extends JFrame {
         inputPanel.add(buttonInputPanel, gbc);
 
 
-        // --- Panel danh sách thẻ ---
+        // danh sách thẻ
         JScrollPane scrollPane = new JScrollPane(displayArea);
         scrollPane.setBorder(BorderFactory.createTitledBorder("Danh Sách Thẻ"));
         scrollPane.setPreferredSize(new Dimension(350, 300));
 
 
-        // Thêm vào cột trái
         leftColumnPanel.add(inputPanel);
         leftColumnPanel.add(Box.createVerticalStrut(10));
         leftColumnPanel.add(scrollPane);
@@ -119,9 +115,6 @@ public class FlashCardAppView extends JFrame {
 
         add(mainPanel, BorderLayout.CENTER);
     }
-
-
-
     //    private void setupLayout(){
 //        // Tạo Panel chính (CENTER) với bố cục hai cột
 //        JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 10));
@@ -205,8 +198,8 @@ public class FlashCardAppView extends JFrame {
     private JButton nextCardButton;
 
     // Thành phần cho phần Luyện tập
-    private JLabel cardQuestionLabel; // Hiển thị từ (câu hỏi)
-    private JLabel cardAnswerLabel;   // Hiển thị nghĩa (câu trả lời)
+    private JLabel cardQuestionLabel;
+    private JLabel cardAnswerLabel;
 
     private JButton showAnswerButton;
 
