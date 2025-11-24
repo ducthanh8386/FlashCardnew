@@ -28,25 +28,138 @@ public class FlashCardAppView extends JFrame {
         showAnswerButton = new JButton("Hiện Nghĩa");
 
     }
-//    private void setupLayout(){
-//        JPanel inputPanel = new JPanel(new GridLayout(3, 2, 5, 5));
+    private void setupLayout() {
+
+        JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+
+
+        // ====== CỘT BÊN TRÁI ======
+        JPanel leftColumnPanel = new JPanel();
+        leftColumnPanel.setLayout(new BoxLayout(leftColumnPanel, BoxLayout.Y_AXIS));
+
+
+        // --- Panel Nhập Thẻ ---
+        JPanel inputPanel = new JPanel();
+        inputPanel.setLayout(new GridBagLayout());
+        inputPanel.setBorder(BorderFactory.createTitledBorder("Nhập Thẻ Mới"));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        inputPanel.setMaximumSize(new Dimension(350, 180));
+
+
+
+        // Label + TextField Tiếng Anh
+        gbc.gridx = 0; gbc.gridy = 0;
+        inputPanel.add(new JLabel("Tiếng Anh:"), gbc);
+
+        gbc.gridx = 1;
+        englishInputField.setPreferredSize(new Dimension(200, 30));
+        inputPanel.add(englishInputField, gbc);
+
+
+        gbc.gridx = 0; gbc.gridy = 1;
+        inputPanel.add(new JLabel("Tiếng Việt:"), gbc);
+
+        gbc.gridx = 1;
+        vietnameseInputField.setPreferredSize(new Dimension(200, 30));
+        inputPanel.add(vietnameseInputField, gbc);
+
+
+        // --- Panel nút ---
+        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
+        JPanel buttonInputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
+
+        addButton.setPreferredSize(new Dimension(100, 35));
+        removeButton.setPreferredSize(new Dimension(100, 35));
+
+        buttonInputPanel.add(addButton);
+        buttonInputPanel.add(removeButton);
+
+        inputPanel.add(buttonInputPanel, gbc);
+
+
+        // --- Panel danh sách thẻ ---
+        JScrollPane scrollPane = new JScrollPane(displayArea);
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Danh Sách Thẻ"));
+        scrollPane.setPreferredSize(new Dimension(350, 300));
+
+
+        // Thêm vào cột trái
+        leftColumnPanel.add(inputPanel);
+        leftColumnPanel.add(Box.createVerticalStrut(10));
+        leftColumnPanel.add(scrollPane);
+
+        JPanel practicePanel = new JPanel(new BorderLayout(10, 10));
+        practicePanel.setBorder(BorderFactory.createTitledBorder("Luyện Tập Flash Card"));
+
+
+        JPanel cardDisplayPanel = new JPanel(new GridLayout(2, 1));
+        cardDisplayPanel.add(cardQuestionLabel);
+        cardDisplayPanel.add(cardAnswerLabel);
+
+        practicePanel.add(cardDisplayPanel, BorderLayout.CENTER);
+
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
+        showAnswerButton.setPreferredSize(new Dimension(150, 40));
+        nextCardButton.setPreferredSize(new Dimension(150, 40));
+
+        buttonPanel.add(showAnswerButton);
+        buttonPanel.add(nextCardButton);
+
+        practicePanel.add(buttonPanel, BorderLayout.SOUTH);
+
+
+
+        // Thêm 2 cột vào giao diện chính
+        mainPanel.add(leftColumnPanel);
+        mainPanel.add(practicePanel);
+
+        add(mainPanel, BorderLayout.CENTER);
+    }
+
+
+
+    //    private void setupLayout(){
+//        // Tạo Panel chính (CENTER) với bố cục hai cột
+//        JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+//
+//        JPanel leftColumnPanel = new JPanel();
+//        leftColumnPanel.setLayout(new BoxLayout(leftColumnPanel, BoxLayout.Y_AXIS));
+//
+//        // Nhập thẻ
+//        JPanel inputPanel = new JPanel();
+//        inputPanel.setLayout(new GridLayout());
 //        inputPanel.setBorder(BorderFactory.createTitledBorder("Nhập Thẻ Mới"));
+//        GridBagConstraints gbc = new GridBagConstraints();
+//        gbc.insets = new Insets(5, 5, 5, 5);
+//        gbc.fill = GridBagConstraints.HORIZONTAL;
 //
 //        inputPanel.add(new JLabel("Tiếng Anh:"));
 //        inputPanel.add(englishInputField);
 //        inputPanel.add(new JLabel("Tiếng Việt:"));
 //        inputPanel.add(vietnameseInputField);
+//
+//        // Panel cho các nút Add/Remove
+//        JPanel buttonInputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+//        buttonInputPanel.add(addButton);
+//        buttonInputPanel.add(removeButton);
 //        inputPanel.add(addButton);
 //        inputPanel.add(removeButton);
-//        inputPanel.add(new JLabel("")); // Căn chỉnh
-//        add(inputPanel, BorderLayout.NORTH);
 //
-//        // --- 2. Panel Hiển thị danh sách (WEST) ---
+//        // Panel Hiển thị danh sách (SOUTH)
 //        JScrollPane scrollPane = new JScrollPane(displayArea);
 //        scrollPane.setBorder(BorderFactory.createTitledBorder("Danh Sách Thẻ"));
-//        add(scrollPane, BorderLayout.WEST);
 //
-//        // --- 3. Panel Luyện tập (CENTER) ---
+//        // Thêm các thành phần vào cột bên trái
+//        leftColumnPanel.add(inputPanel);
+//        leftColumnPanel.add(Box.createVerticalStrut(10));
+//        leftColumnPanel.add(scrollPane);
+//
+//
+//        // luyen tap
 //        JPanel practicePanel = new JPanel(new BorderLayout(10, 10));
 //        practicePanel.setBorder(BorderFactory.createTitledBorder("Luyện Tập Flash Card"));
 //
@@ -57,78 +170,18 @@ public class FlashCardAppView extends JFrame {
 //        practicePanel.add(cardDisplayPanel, BorderLayout.CENTER);
 //
 //        // Panel Nút bấm
-//        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+//        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 200, 10));
 //        buttonPanel.add(showAnswerButton);
 //        buttonPanel.add(nextCardButton);
 //        practicePanel.add(buttonPanel, BorderLayout.SOUTH);
 //
-//        add(practicePanel, BorderLayout.CENTER);
 //
+//
+//        // Thêm hai cột vào panel chính
+//        mainPanel.add(leftColumnPanel);
+//        mainPanel.add(practicePanel);
+//        add(mainPanel, BorderLayout.CENTER);
 //    }
-
-    private void setupLayout(){
-        // Tạo Panel chính (CENTER) với bố cục hai cột
-        JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 10));
-
-        JPanel leftColumnPanel = new JPanel();
-        // Dùng BoxLayout để xếp Nhập liệu (trên) và Danh sách (dưới) theo chiều dọc
-        leftColumnPanel.setLayout(new BoxLayout(leftColumnPanel, BoxLayout.Y_AXIS));
-
-        // Panel Nhập liệu (NORTH)
-        JPanel inputPanel = new JPanel(new GridLayout(3, 2, 5, 5));
-        inputPanel.setBorder(BorderFactory.createTitledBorder("Nhập Thẻ Mới"));
-
-        inputPanel.add(new JLabel("Tiếng Anh:"));
-        inputPanel.add(englishInputField);
-        inputPanel.add(new JLabel("Tiếng Việt:"));
-        inputPanel.add(vietnameseInputField);
-
-        // Panel cho các nút Add/Remove
-        JPanel buttonInputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        buttonInputPanel.add(addButton);
-        buttonInputPanel.add(removeButton);
-        inputPanel.add(addButton);
-        inputPanel.add(removeButton);
-
-        // Panel Hiển thị danh sách (SOUTH)
-        JScrollPane scrollPane = new JScrollPane(displayArea);
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Danh Sách Thẻ"));
-
-        // Thêm các thành phần vào cột bên trái
-        leftColumnPanel.add(inputPanel);
-        leftColumnPanel.add(Box.createVerticalStrut(10)); // Tạo khoảng cách
-        leftColumnPanel.add(scrollPane);
-
-
-        // =======================================================
-        // --- 2. Panel Luyện tập (RIGHT) ---
-        // =======================================================
-        JPanel practicePanel = new JPanel(new BorderLayout(10, 10));
-        practicePanel.setBorder(BorderFactory.createTitledBorder("Luyện Tập Flash Card"));
-
-        // Panel hiển thị Thẻ
-        JPanel cardDisplayPanel = new JPanel(new GridLayout(2, 1));
-        cardDisplayPanel.add(cardQuestionLabel);
-        cardDisplayPanel.add(cardAnswerLabel);
-        practicePanel.add(cardDisplayPanel, BorderLayout.CENTER);
-
-        // Panel Nút bấm
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        buttonPanel.add(showAnswerButton);
-        buttonPanel.add(nextCardButton);
-        practicePanel.add(buttonPanel, BorderLayout.SOUTH);
-
-
-        // =======================================================
-        // --- 3. Bố trí Panel Chính ---
-        // =======================================================
-        // Thêm hai cột vào panel chính
-        mainPanel.add(leftColumnPanel);
-        mainPanel.add(practicePanel);
-
-        // Thêm panel chính vào JFrame (thay thế bố cục cũ)
-        add(mainPanel, BorderLayout.CENTER);
-    }
     private void updateCardListDisPlay(){
         displayArea.setText(controller.getAllCardsInfo());
     }
