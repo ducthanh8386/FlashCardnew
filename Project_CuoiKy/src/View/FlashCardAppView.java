@@ -68,11 +68,8 @@ public class FlashCardAppView extends JFrame {
 
     private void setupLayout(){
         // Tạo Panel chính (CENTER) với bố cục hai cột
-        JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 10)); // 1 hàng, 2 cột
+        JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 10));
 
-        // =======================================================
-        // --- 1. Panel Cột Bên Trái (Nhập liệu + Danh sách) ---
-        // =======================================================
         JPanel leftColumnPanel = new JPanel();
         // Dùng BoxLayout để xếp Nhập liệu (trên) và Danh sách (dưới) theo chiều dọc
         leftColumnPanel.setLayout(new BoxLayout(leftColumnPanel, BoxLayout.Y_AXIS));

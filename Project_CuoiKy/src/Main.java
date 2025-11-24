@@ -38,6 +38,7 @@ public class Main {
                 }
             });
 
+
             // Xóa thẻ
             view.getRemoveButton().addActionListener(new ActionListener() {
                 @Override
