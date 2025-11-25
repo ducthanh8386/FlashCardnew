@@ -10,20 +10,21 @@ public class FlashCardManager {
         this.cards = new ArrayList<>();
     }
 
-    public void addCards(String englishWord, String vietnameseMeaning) {
+    public boolean addCards(String englishWord, String vietnameseMeaning) {
+        String english = englishWord.trim();
+        String vietnamese = vietnameseMeaning.trim();
         String regexTiengAnh = "[a-zA-Z ]+";
         if (!englishWord.matches(regexTiengAnh)) {
-            System.out.println("Lỗi: Từ tiếng Anh không hợp lệ. Đã hủy thêm.");
-            return;
+            return false;
         }
-        String regexTiengViet= "^[A-Za-zÀ-ỹ\s]+$";
+        String regexTiengViet= "^[A-Za-zÀ-ỹ\\s]+$";
         if (!vietnameseMeaning.matches(regexTiengViet)) {
-            System.out.println("Lỗi: Từ tiếng việt không hợp lệ");
+            return false;
         }
         FlashCard newCard = new FlashCard(englishWord, vietnameseMeaning);
         cards.add(newCard);
-        System.out.println("Đã thêm card thành công!");
 
+        return true;
     }
     public boolean removeCards(String englishWord, String vietnameseMeaning) {
         if (englishWord == null || englishWord.trim().isEmpty()

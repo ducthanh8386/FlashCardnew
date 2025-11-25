@@ -19,8 +19,8 @@ public class CardControl {
         String engligh = english.trim();
         String vietnames = vietnamese.trim();
         if(!english.isEmpty() && !vietnames.isEmpty()){
-            model.addCards(english, vietnames);
-            return true;
+            return model.addCards(english, vietnames);
+
         }
         return false;
     }
