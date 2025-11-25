@@ -5,7 +5,6 @@ import java.awt.*;
 import Model.UserManager;
 import Model.FlashCardManager;
 import Control.CardControl;
-import java.awt.event.ActionListener;
 
 public class LoginView extends JFrame {
     private JTextField usernameField;
@@ -37,20 +36,20 @@ public class LoginView extends JFrame {
 
         setVisible(true);
 
-        // --- Login action ---
+        // --- Login ---
         loginButton.addActionListener(e -> {
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword()).trim();
 
             if(userManager.login(username, password)){
-                // Tạo model và controller
+                // Tạo model + controller
                 FlashCardManager model = new FlashCardManager();
                 CardControl controller = new CardControl(model);
 
-                // Mở FlashCardAppView với listener đầy đủ
+                // Mở FlashCardAppView
                 FlashCardAppView appView = new FlashCardAppView(controller);
 
-                // Thêm listener cho các nút trong FlashCardAppView
+                // Thêm listener giữ nguyên logic cũ (trim + regex)
                 addFlashCardAppListeners(appView, controller);
 
                 dispose(); // đóng LoginView
@@ -61,7 +60,7 @@ public class LoginView extends JFrame {
             }
         });
 
-        // --- Register action ---
+        // --- Register ---
         registerButton.addActionListener(e -> {
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword()).trim();
@@ -78,18 +77,23 @@ public class LoginView extends JFrame {
         });
     }
 
-    // Hàm thêm listener cho FlashCardAppView
+    // --- Thêm listener cho FlashCardAppView ---
     private void addFlashCardAppListeners(FlashCardAppView view, CardControl controller){
-        // Thêm thẻ mới
+        // Thêm thẻ mới với kiểm tra regex
         view.getAddButton().addActionListener(e -> {
-            String english = view.getEnglishInput();
-            String vietnamese = view.getVietnameseInput();
+            String english = view.getEnglishInput().trim();
+            String vietnamese = view.getVietnameseInput().trim();
 
-            if (controller.addCard(english, vietnamese)) {
+            // Regex kiểm tra tiếng Anh và tiếng Việt
+            boolean englishValid = english.matches("[a-zA-Z ]+");
+            boolean vietnameseValid = vietnamese.matches("[\\p{L} ]+");
+
+            if(!english.isEmpty() && !vietnamese.isEmpty() && englishValid && vietnameseValid){
+                controller.addCard(english, vietnamese);
                 view.clearInputFields();
                 view.updateCardListDisplay();
             } else {
-                view.showMessage("Vui lòng nhập đầy đủ cả Tiếng Anh và Tiếng Việt!",
+                view.showMessage("Vui lòng nhập đúng định dạng:\n- Tiếng Anh: chỉ chữ cái và khoảng trắng\n- Tiếng Việt: chỉ chữ Unicode và khoảng trắng",
                         "Lỗi Nhập liệu", JOptionPane.ERROR_MESSAGE);
             }
         });
