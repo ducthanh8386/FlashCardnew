@@ -81,9 +81,7 @@ import java.awt.event.ActionListener;
     public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            // Khởi tạo và chạy lớp quản lý người dùng
             UserManager userManager = new UserManager();
-            // Hiển thị giao diện đăng nhập (LoginView sẽ tự mở FlashCardAppView sau khi đăng nhập thành công)
             new LoginView(userManager);
         });
     }

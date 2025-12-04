@@ -6,20 +6,24 @@ import Model.FlashCardManager;
 import java.util.List;
 
 public class CardControl {
-    private FlashCardManager model;
+    private FlashCardManager currentModel;
 
     public CardControl(FlashCardManager model) {
-        this.model = model;
+        this.currentModel = model;
+    }
+
+    public void setModel(FlashCardManager model) {
+        this.currentModel = model;
     }
 
     public void CardController(FlashCardManager model){
-        this.model = model;
+        this.currentModel = model;
     }
     public boolean addCard(String english, String vietnamese){
         String engligh = english.trim();
         String vietnames = vietnamese.trim();
         if(!english.isEmpty() && !vietnames.isEmpty()){
-            return model.addCards(english, vietnames);
+            return currentModel.addCards(english, vietnames);
 
         }
         return false;
@@ -28,21 +32,21 @@ public class CardControl {
         String engligh = english.trim();
         String vietnames = vietnamese.trim();
         if(!english.isEmpty() && !vietnames.isEmpty()){
-            return model.removeCards(engligh, vietnames);
+            return currentModel.removeCards(engligh, vietnames);
         }
         return false;
     }
     public String getAllCardsInfo() {
         StringBuilder sb = new StringBuilder();
         sb.append("--- DANH SÁCH THẺ TỪ HIỆN TẠI (")
-                .append(model.getCardsCount()).append(") ---\n");
+                .append(currentModel.getCardsCount()).append(") ---\n");
 
-        for (FlashCard card : model.getAllCards()) {
+        for (FlashCard card : currentModel.getAllCards()) {
             sb.append(card.toString()).append("\n");
         }
         return sb.toString();
     }
     public FlashCard getNextRandomCard(){
-        return model.getRadomCards();
+        return currentModel.getRadomCards();
     }
 }

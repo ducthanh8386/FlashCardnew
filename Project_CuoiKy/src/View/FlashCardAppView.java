@@ -167,9 +167,6 @@ public class FlashCardAppView extends JFrame {
 //        buttonPanel.add(showAnswerButton);
 //        buttonPanel.add(nextCardButton);
 //        practicePanel.add(buttonPanel, BorderLayout.SOUTH);
-//
-//
-//
 //        // Thêm hai cột vào panel chính
 //        mainPanel.add(leftColumnPanel);
 //        mainPanel.add(practicePanel);

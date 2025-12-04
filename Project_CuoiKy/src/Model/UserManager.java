@@ -2,23 +2,23 @@
 package Model;
 
 import java.io.*;
-        import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.List;
 
-public class UserManager {
+public class UserManager implements Serializable {
+    private static final long serialVersionUID = 3L;
     private List<User> users;
-    private final String FILE_PATH = "users.txt";
+    private final String FILE_PATH = "users_data.ser";
 
     public UserManager() {
         users = new ArrayList<>();
         loadUsersFromFile();
     }
-
     // Đăng ký
     public boolean register(String username, String password) {
         if (username.isEmpty() || password.isEmpty()) return false;
         for (User u : users) {
-            if (u.getUsername().equals(username)) return false; // username đã tồn tại
+            if (u.getUsername().equals(username)) return false;
         }
         User newUser = new User(username, password);
         users.add(newUser);
@@ -35,34 +35,33 @@ public class UserManager {
         }
         return false;
     }
-
-    // Lưu user vào file
-    private void saveUsersToFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
-            for (User u : users) {
-                writer.write(u.getUsername() + "," + u.getPassword());
-                writer.newLine();
+    public User getUser(String username) {
+        for (User u : users) {
+            if (u.getUsername().equals(username)) {
+                return u;
             }
+        }
+        return null;
+    }
+    private void saveUsersToFile() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
+            oos.writeObject(users);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Lỗi khi lưu dữ liệu người dùng: " + e.getMessage());
         }
     }
+
 
     // Load user từ file
     private void loadUsersFromFile() {
         File file = new File(FILE_PATH);
         if (!file.exists()) return;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length == 2) {
-                    users.add(new User(parts[0], parts[1]));
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_PATH))) {
+            // Ép kiểu (cast) đối tượng đọc được thành List<User>
+            users = (List<User>) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Lỗi khi tải dữ liệu người dùng: " + e.getMessage());
         }
     }
 }
