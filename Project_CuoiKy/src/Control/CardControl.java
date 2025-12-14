@@ -39,7 +39,7 @@ public class CardControl {
     public String getAllCardsInfo() {
         StringBuilder sb = new StringBuilder();
         sb.append("--- DANH SÁCH THẺ TỪ HIỆN TẠI (")
-                .append(currentModel.getCardsCount()).append(") ---\n");
+                .append(currentModel.getCardsCount()).append(") --\n");
 
         for (FlashCard card : currentModel.getAllCards()) {
             sb.append(card.toString()).append("\n");
@@ -47,6 +47,6 @@ public class CardControl {
         return sb.toString();
     }
     public FlashCard getNextRandomCard(){
-        return currentModel.getRadomCards();
+        return currentModel.getRandomCard();
     }
 }
