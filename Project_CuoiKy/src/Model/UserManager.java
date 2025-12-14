@@ -43,7 +43,7 @@ public class UserManager implements Serializable {
         }
         return null;
     }
-    private void saveUsersToFile() {
+    public void saveUsersToFile() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
             oos.writeObject(users);
         } catch (IOException e) {
@@ -58,7 +58,6 @@ public class UserManager implements Serializable {
         if (!file.exists()) return;
 
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_PATH))) {
-            // Ép kiểu (cast) đối tượng đọc được thành List<User>
             users = (List<User>) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Lỗi khi tải dữ liệu người dùng: " + e.getMessage());

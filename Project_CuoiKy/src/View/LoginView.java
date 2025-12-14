@@ -6,6 +6,8 @@ import java.awt.*;
 import Model.UserManager;
 import Model.FlashCardManager;
 import Control.CardControl;
+import Model.User;
+import View.FlashCardAppView;
 import java.awt.event.ActionListener;
 
 public class LoginView extends JFrame {
@@ -44,16 +46,11 @@ public class LoginView extends JFrame {
             String password = new String(passwordField.getPassword()).trim();
 
             if(userManager.login(username, password)){
-                // Tạo model và controller
-                FlashCardManager model = new FlashCardManager();
-                CardControl controller = new CardControl(model);
-
-                // Mở FlashCardAppView với listener đầy đủ
+                User currentUser = userManager.getUser(username);
+                FlashCardManager userModel = currentUser.getFlashCardManager();
+                CardControl controller = new CardControl(userModel);
                 FlashCardAppView appView = new FlashCardAppView(controller);
-
-                // Thêm listener cho các nút trong FlashCardAppView
-                addFlashCardAppListeners(appView, controller);
-
+                addFlashCardAppListeners(appView, controller, userManager);
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(this,
@@ -80,7 +77,7 @@ public class LoginView extends JFrame {
     }
 
     // Hàm thêm listener cho FlashCardAppView
-    private void addFlashCardAppListeners(FlashCardAppView view, CardControl controller){
+    private void addFlashCardAppListeners(FlashCardAppView view, CardControl controller, UserManager userManager){
         // Thêm thẻ mới
         view.getAddButton().addActionListener(e -> {
             String english = view.getEnglishInput().trim();
@@ -90,10 +87,10 @@ public class LoginView extends JFrame {
                 view.clearInputFields();
                 view.updateCardListDisplay();
                 view.showMessage("Đã thêm thẻ thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-
+                userManager.saveUsersToFile();
             } else {
                 String regexTiengAnh = "[a-zA-Z ]+";
-                String regexTiengViet= "^[A-Za-zÀ-ỹ\s]+$";
+                String regexTiengViet= "^[A-Za-zÀ-ỹ\\s]+$";
                 if (english.isEmpty() || vietnamese.isEmpty()) {
                     view.showMessage("Lỗi: Vui lòng nhập đầy đủ cả Tiếng Anh và Tiếng Việt!",
                             "Lỗi Nhập liệu", JOptionPane.ERROR_MESSAGE);
@@ -120,7 +117,7 @@ public class LoginView extends JFrame {
                 view.clearInputFields();
                 view.updateCardListDisplay();
                 view.showMessage("Đã xóa thẻ thành công!"," Thành Công", JOptionPane.INFORMATION_MESSAGE);
-
+                userManager.saveUsersToFile();
             }else {
                 if (english.trim().isEmpty() || vietnamese.trim().isEmpty()) {
                     view.showMessage("Lỗi: Hãy nhập đầy đủ cả Tiếng Anh và Tiếng Việt muốn xóa",
