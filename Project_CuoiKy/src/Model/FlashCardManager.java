@@ -29,6 +29,9 @@ public class FlashCardManager implements Serializable {
         }
 
         FlashCard newCard = new FlashCard(englishWord, vietnameseMeaning);
+        if (cards.contains(newCard)) {
+            return false; // Trả về false nếu thẻ đã có trong danh sách
+        }
         cards.add(newCard);
 
         return true;

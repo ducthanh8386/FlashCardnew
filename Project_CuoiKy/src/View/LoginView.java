@@ -50,7 +50,7 @@ public class LoginView extends JFrame {
                 FlashCardManager userModel = currentUser.getFlashCardManager();
                 CardControl controller = new CardControl(userModel);
                 FlashCardAppView appView = new FlashCardAppView(controller);
-                addFlashCardAppListeners(appView, controller, userManager);
+                addFlashCardAppListeners(appView, controller, userManager , currentUser);
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(this,
@@ -77,7 +77,7 @@ public class LoginView extends JFrame {
     }
 
     // Hàm thêm listener cho FlashCardAppView
-    private void addFlashCardAppListeners(FlashCardAppView view, CardControl controller, UserManager userManager){
+    private void addFlashCardAppListeners(FlashCardAppView view, CardControl controller, UserManager userManager, User currentUser){
         // Thêm thẻ mới
         view.getAddButton().addActionListener(e -> {
             String english = view.getEnglishInput().trim();
@@ -87,7 +87,7 @@ public class LoginView extends JFrame {
                 view.clearInputFields();
                 view.updateCardListDisplay();
                 view.showMessage("Đã thêm thẻ thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-                userManager.saveUsersToFile();
+                userManager.saveUser(currentUser);
             } else {
                 String regexTiengAnh = "[a-zA-Z ]+";
                 String regexTiengViet= "^[A-Za-zÀ-ỹ\\s]+$";
@@ -100,8 +100,8 @@ public class LoginView extends JFrame {
                             "Lỗi Định dạng", JOptionPane.ERROR_MESSAGE);
 
                 }else {
-                    view.showMessage("Đã xảy ra lỗi khi thêm thẻ. Vui lòng kiểm tra lại!",
-                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    view.showMessage("Lỗi: Thẻ này đã được tồn tại trong danh sách.",
+                            "Trùng lặp từ vựng", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -117,7 +117,7 @@ public class LoginView extends JFrame {
                 view.clearInputFields();
                 view.updateCardListDisplay();
                 view.showMessage("Đã xóa thẻ thành công!"," Thành Công", JOptionPane.INFORMATION_MESSAGE);
-                userManager.saveUsersToFile();
+                userManager.saveUser(currentUser);
             }else {
                 if (english.trim().isEmpty() || vietnamese.trim().isEmpty()) {
                     view.showMessage("Lỗi: Hãy nhập đầy đủ cả Tiếng Anh và Tiếng Việt muốn xóa",

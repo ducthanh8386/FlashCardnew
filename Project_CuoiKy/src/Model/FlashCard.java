@@ -47,12 +47,15 @@ public class FlashCard implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FlashCard flashCard = (FlashCard) o;
-        return Objects.equals(englishWord.toLowerCase(), flashCard.englishWord.toLowerCase()) &&
-                Objects.equals(vietnameseMeaning.toLowerCase(), flashCard.vietnameseMeaning.toLowerCase());
+        return Objects.equals(englishWord.toLowerCase(), flashCard.englishWord.toLowerCase());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(englishWord.toLowerCase(), vietnameseMeaning.toLowerCase());
+
+        return Objects.hash(englishWord.toLowerCase());
+    }
+    public String toFileString(){
+        return englishWord + "|" + vietnameseMeaning;
     }
 }

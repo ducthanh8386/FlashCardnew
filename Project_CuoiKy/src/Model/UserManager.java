@@ -1,66 +1,116 @@
-
 package Model;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class UserManager implements Serializable {
-    private static final long serialVersionUID = 3L;
-    private List<User> users;
-    private final String FILE_PATH = "users_data.ser";
+public class UserManager {
+    // Đường dẫn tuyệt đối của bạn
+    private final String DATA_FOLDER = "src/data/";
+    private final String FILE_EXTENSION = ".txt";
 
     public UserManager() {
-        users = new ArrayList<>();
-        loadUsersFromFile();
-    }
-    // Đăng ký
-    public boolean register(String username, String password) {
-        if (username.isEmpty() || password.isEmpty()) return false;
-        for (User u : users) {
-            if (u.getUsername().equals(username)) return false;
+        File folder = new File(DATA_FOLDER);
+        if (!folder.exists()) {
+            folder.mkdirs();
         }
-        User newUser = new User(username, password);
-        users.add(newUser);
-        saveUsersToFile();
-        return true;
     }
 
-    // Đăng nhập
+    public boolean register(String username, String password) {
+        if (username.isEmpty() || password.isEmpty()) return false;
+        File file = new File(DATA_FOLDER + username + FILE_EXTENSION);
+        if (file.exists()) return false;
+
+        // Dùng UTF-8 để ghi tiếng Việt chuẩn
+        try (BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
+            writer.write(password);
+            writer.newLine();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean login(String username, String password) {
-        for (User u : users) {
-            if (u.getUsername().equals(username) && u.getPassword().equals(password)) {
-                return true;
-            }
+        File file = new File(DATA_FOLDER + username + FILE_EXTENSION);
+        if (!file.exists()) return false;
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+            String storedPassword = reader.readLine();
+            return storedPassword != null && storedPassword.equals(password);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return false;
     }
+
     public User getUser(String username) {
-        for (User u : users) {
-            if (u.getUsername().equals(username)) {
-                return u;
+        File file = new File(DATA_FOLDER + username + FILE_EXTENSION);
+        if (!file.exists()) return null;
+
+        User user = null;
+        // Dùng UTF-8 để đọc tiếng Việt chuẩn
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+
+            String password = reader.readLine();
+            user = new User(username, password);
+
+            System.out.println("--- BẮT ĐẦU ĐỌC FILE CỦA: " + username + " ---");
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+
+                // Tách chuỗi: English | Vietnamese
+                String[] parts = line.split("\\s*\\|\\s*");
+
+                if (parts.length == 2) {
+                    String english = parts[0].trim();
+                    String vietnamese = parts[1].trim();
+
+                    // Thử thêm và in kết quả ra màn hình Console
+                    boolean ketQua = user.getFlashCardManager().addCards(english, vietnamese);
+
+                    if (ketQua) {
+                        System.out.println("Đã nạp thành công: " + english);
+                    } else {
+                        System.err.println("LỖI: Không thể nạp từ '" + english + "' (Có thể do sai Regex hoặc trùng lặp)");
+                    }
+                } else {
+                    System.err.println("LỖI ĐỊNH DẠNG DÒNG: " + line);
+                }
             }
-        }
-        return null;
-    }
-    public void saveUsersToFile() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
-            oos.writeObject(users);
+            System.out.println("--- KẾT THÚC ĐỌC FILE ---");
+
         } catch (IOException e) {
-            System.err.println("Lỗi khi lưu dữ liệu người dùng: " + e.getMessage());
+            e.printStackTrace();
         }
+        return user;
     }
 
+    public void saveUser(User user) {
+        if (user == null) return;
+        File file = new File(DATA_FOLDER + user.getUsername() + FILE_EXTENSION);
 
-    // Load user từ file
-    private void loadUsersFromFile() {
-        File file = new File(FILE_PATH);
-        if (!file.exists()) return;
+        // Dùng UTF-8 để ghi
+        try (BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
 
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_PATH))) {
-            users = (List<User>) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Lỗi khi tải dữ liệu người dùng: " + e.getMessage());
+            writer.write(user.getPassword());
+            writer.newLine();
+
+            List<FlashCard> cards = user.getFlashCardManager().getAllCards();
+            for (FlashCard card : cards) {
+                writer.write(card.toFileString());
+                writer.newLine();
+            }
+            System.out.println("Đã lưu " + cards.size() + " thẻ vào file: " + file.getName());
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
