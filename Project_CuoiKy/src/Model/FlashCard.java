@@ -1,14 +1,8 @@
-
-
 package Model;
-
-import java.io.Serializable;
 import java.util.Objects;
 
 
-public class FlashCard implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class FlashCard  {
 
     private String englishWord;
     private String vietnameseMeaning;

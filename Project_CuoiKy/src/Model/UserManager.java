@@ -1,116 +1,99 @@
 package Model;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+// Thêm các thư viện JDBC cần thiết
+
+import java.sql.*;
 import java.util.List;
+// Loại bỏ các import liên quan đến File I/O (File, BufferedReader, BufferedWriter, v.v.)
 
 public class UserManager {
-    // Đường dẫn tuyệt đối của bạn
-    private final String DATA_FOLDER = "src/data/";
-    private final String FILE_EXTENSION = ".txt";
+
+    // Loại bỏ DATA_FOLDER và FILE_EXTENSION
 
     public UserManager() {
-        File folder = new File(DATA_FOLDER);
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
+        // Không cần tạo thư mục nữa, logic này đã được loại bỏ
     }
 
+    /**
+     * Đăng ký người dùng mới vào cơ sở dữ liệu.
+     * @param username Tên đăng nhập.
+     * @param password Mật khẩu.
+     * @return true nếu đăng ký thành công, false nếu thất bại (trùng tên đăng nhập hoặc lỗi DB).
+     */
     public boolean register(String username, String password) {
-        if (username.isEmpty() || password.isEmpty()) return false;
-        File file = new File(DATA_FOLDER + username + FILE_EXTENSION);
-        if (file.exists()) return false;
+        if (username.trim().isEmpty() || password.trim().isEmpty()) return false;
 
-        // Dùng UTF-8 để ghi tiếng Việt chuẩn
-        try (BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
-            writer.write(password);
-            writer.newLine();
+        String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+
+        // Sử dụng try-with-resources để đảm bảo Connection, PreparedStatement được đóng
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            if (conn == null) return false; // Không kết nối được DB
+
+            pstmt.setString(1, username.trim());
+            pstmt.setString(2, password.trim());
+
+            // Thực thi INSERT
+            int affectedRows = pstmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                // Có thể lỗi do trùng username (UNIQUE key) hoặc lỗi khác
+                return false;
+            }
+
+            System.out.println("Đăng ký thành công người dùng: " + username);
             return true;
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        } catch (SQLException e) {
+            // Lỗi SQL (ví dụ: trùng username do constraint UNIQUE)
+            System.err.println("LỖI ĐĂNG KÝ: " + e.getMessage());
             return false;
         }
     }
 
-    public boolean login(String username, String password) {
-        File file = new File(DATA_FOLDER + username + FILE_EXTENSION);
-        if (!file.exists()) return false;
+    /**
+     * Đăng nhập người dùng.
+     * @param username Tên đăng nhập.
+     * @param password Mật khẩu.
+     * @return Đối tượng User nếu đăng nhập thành công, ngược lại trả về null.
+     */
+    public User login(String username, String password) {
+        String sql = "SELECT id, username, password FROM users WHERE username = ? AND password = ?";
 
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
-            String storedPassword = reader.readLine();
-            return storedPassword != null && storedPassword.equals(password);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-    public User getUser(String username) {
-        File file = new File(DATA_FOLDER + username + FILE_EXTENSION);
-        if (!file.exists()) return null;
+            if (conn == null) return null; // Không kết nối được DB
 
-        User user = null;
-        // Dùng UTF-8 để đọc tiếng Việt chuẩn
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+            pstmt.setString(1, username.trim());
+            pstmt.setString(2, password.trim());
 
-            String password = reader.readLine();
-            user = new User(username, password);
+            // Thực thi SELECT
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    // Đã tìm thấy người dùng hợp lệ
+                    int userId = rs.getInt("id");
+                    String userDb = rs.getString("username");
+                    String passDb = rs.getString("password");
 
-            System.out.println("--- BẮT ĐẦU ĐỌC FILE CỦA: " + username + " ---");
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-
-                // Tách chuỗi: English | Vietnamese
-                String[] parts = line.split("\\s*\\|\\s*");
-
-                if (parts.length == 2) {
-                    String english = parts[0].trim();
-                    String vietnamese = parts[1].trim();
-
-                    // Thử thêm và in kết quả ra màn hình Console
-                    boolean ketQua = user.getFlashCardManager().addCards(english, vietnamese);
-
-                    if (ketQua) {
-                        System.out.println("Đã nạp thành công: " + english);
-                    } else {
-                        System.err.println("LỖI: Không thể nạp từ '" + english + "' (Có thể do sai Regex hoặc trùng lặp)");
-                    }
-                } else {
-                    System.err.println("LỖI ĐỊNH DẠNG DÒNG: " + line);
+                    // Tạo đối tượng User với ID từ database
+                    System.out.println("Đăng nhập thành công, User ID: " + userId);
+                    return new User(userId, userDb, passDb);
                 }
             }
-            System.out.println("--- KẾT THÚC ĐỌC FILE ---");
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("LỖI ĐĂNG NHẬP: " + e.getMessage());
         }
-        return user;
+        return null; // Đăng nhập thất bại
     }
 
-    public void saveUser(User user) {
-        if (user == null) return;
-        File file = new File(DATA_FOLDER + user.getUsername() + FILE_EXTENSION);
+    // Loại bỏ phương thức loadUser và saveUser cũ
+    // Logic quản lý FlashCard (load/save) sẽ được chuyển hoàn toàn sang FlashCardManager.
 
-        // Dùng UTF-8 để ghi
-        try (BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
-
-            writer.write(user.getPassword());
-            writer.newLine();
-
-            List<FlashCard> cards = user.getFlashCardManager().getAllCards();
-            for (FlashCard card : cards) {
-                writer.write(card.toFileString());
-                writer.newLine();
-            }
-            System.out.println("Đã lưu " + cards.size() + " thẻ vào file: " + file.getName());
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    /**
+     * Thay thế cho getUser cũ, tuy nhiên, phương thức login mới đã trả về User object.
+     * Giữ lại cho đồng nhất code nếu cần nhưng sẽ không được sử dụng ở View/Controller.
+     */
+    // public User getUser(String username) { ... } // Không cần thiết nữa
 }

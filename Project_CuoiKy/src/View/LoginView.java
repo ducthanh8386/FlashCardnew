@@ -1,4 +1,3 @@
-
 package View;
 
 import javax.swing.*;
@@ -7,8 +6,6 @@ import Model.UserManager;
 import Model.FlashCardManager;
 import Control.CardControl;
 import Model.User;
-import View.FlashCardAppView;
-import java.awt.event.ActionListener;
 
 public class LoginView extends JFrame {
     private JTextField usernameField;
@@ -45,96 +42,90 @@ public class LoginView extends JFrame {
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword()).trim();
 
-            if(userManager.login(username, password)){
-                User currentUser = userManager.getUser(username);
-                FlashCardManager userModel = currentUser.getFlashCardManager();
-                CardControl controller = new CardControl(userModel);
+
+            User currentUser = userManager.login(username, password);
+
+            if(currentUser != null){
+                FlashCardManager flashCardManager = currentUser.getFlashCardManager();
+                CardControl controller = new CardControl(flashCardManager);
+
+
                 FlashCardAppView appView = new FlashCardAppView(controller);
-                addFlashCardAppListeners(appView, controller, userManager , currentUser);
+
+
+                addFlashCardAppListeners(appView, controller);
+
+
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(this,
                         "Sai tài khoản hoặc mật khẩu!",
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        "Lỗi Đăng Nhập", JOptionPane.ERROR_MESSAGE);
             }
         });
 
-        // --- Register action ---
         registerButton.addActionListener(e -> {
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword()).trim();
 
             if(userManager.register(username, password)){
                 JOptionPane.showMessageDialog(this,
-                        "Đăng ký thành công!",
+                        "Đăng ký thành công! Hãy đăng nhập.",
                         "Thành công", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(this,
                         "Username đã tồn tại hoặc rỗng!",
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        "Lỗi Đăng Ký", JOptionPane.ERROR_MESSAGE);
             }
         });
     }
 
-    // Hàm thêm listener cho FlashCardAppView
-    private void addFlashCardAppListeners(FlashCardAppView view, CardControl controller, UserManager userManager, User currentUser){
-        // Thêm thẻ mới
+
+    private void addFlashCardAppListeners(FlashCardAppView view, CardControl controller){
+
+        // --- Nút THÊM THẺ ---
         view.getAddButton().addActionListener(e -> {
             String english = view.getEnglishInput().trim();
             String vietnamese = view.getVietnameseInput().trim();
+
             boolean added = controller.addCard(english, vietnamese);
+
             if (added) {
                 view.clearInputFields();
                 view.updateCardListDisplay();
                 view.showMessage("Đã thêm thẻ thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-                userManager.saveUser(currentUser);
             } else {
-                String regexTiengAnh = "[a-zA-Z ]+";
-                String regexTiengViet= "^[A-Za-zÀ-ỹ\\s]+$";
+                // Logic kiểm tra lỗi hiển thị thông báo (Regex kiểm tra đã có trong Controller/Manager chưa?)
+                // Nếu Controller chưa check Regex kỹ, có thể check tại đây hoặc View
                 if (english.isEmpty() || vietnamese.isEmpty()) {
-                    view.showMessage("Lỗi: Vui lòng nhập đầy đủ cả Tiếng Anh và Tiếng Việt!",
-                            "Lỗi Nhập liệu", JOptionPane.ERROR_MESSAGE);
-
-                } else if (!english.matches(regexTiengAnh) || !vietnamese.matches(regexTiengViet)) {
-                    view.showMessage("Lỗi: Vui lòng không nhập ký tự đặc biệt hoặc số vào từ!",
-                            "Lỗi Định dạng", JOptionPane.ERROR_MESSAGE);
-
-                }else {
-                    view.showMessage("Lỗi: Thẻ này đã được tồn tại trong danh sách.",
-                            "Trùng lặp từ vựng", JOptionPane.ERROR_MESSAGE);
+                    view.showMessage("Lỗi: Vui lòng nhập đầy đủ!", "Lỗi Nhập liệu", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    view.showMessage("Lỗi: Thẻ trùng hoặc ký tự không hợp lệ!", "Lỗi Thêm Thẻ", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-
-//    private void removeFlashCardAppListeners(FlashCardAppView view, CardControl controller){
+        // --- Nút XÓA THẺ (SỬA 5: Tách biệt rõ ràng khỏi nút Add) ---
         view.getRemoveButton().addActionListener(e -> {
             String english = view.getEnglishInput();
             String vietnamese = view.getVietnameseInput();
 
             boolean isRemoved = controller.removeCard(english, vietnamese);
+
             if(isRemoved){
                 view.clearInputFields();
                 view.updateCardListDisplay();
-                view.showMessage("Đã xóa thẻ thành công!"," Thành Công", JOptionPane.INFORMATION_MESSAGE);
-                userManager.saveUser(currentUser);
-            }else {
-                if (english.trim().isEmpty() || vietnamese.trim().isEmpty()) {
-                    view.showMessage("Lỗi: Hãy nhập đầy đủ cả Tiếng Anh và Tiếng Việt muốn xóa",
-                            "Lỗi nhập liệu ", JOptionPane.ERROR_MESSAGE);
+                view.showMessage("Đã xóa thẻ thành công!", "Thành Công", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                if (english.trim().isEmpty()) {
+                    view.showMessage("Lỗi: Hãy nhập từ Tiếng Anh muốn xóa", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
                 } else {
                     view.showMessage("Lỗi: Không tìm thấy thẻ cần xóa", "Lỗi xóa thẻ", JOptionPane.ERROR_MESSAGE);
                 }
             }
-
         });
 
-
-        // Hiển thị nghĩa
         view.getShowAnswerButton().addActionListener(e -> view.getCardAnswerLabel().setVisible(true));
-
-        // Thẻ tiếp theo
         view.getNextCardButton().addActionListener(e -> view.resetPracticeCard());
     }
-
 }
