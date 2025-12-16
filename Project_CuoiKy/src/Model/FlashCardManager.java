@@ -8,32 +8,17 @@ import java.util.Collections;
 
 public class FlashCardManager {
 
-    private final int userId; // ID của người dùng hiện tại
+    private final int userId;
 
-    /**
-     * Constructor mới nhận ID của người dùng.
-     * @param userId ID người dùng.
-     */
     public FlashCardManager(int userId) {
         this.userId = userId;
-        // Không cần load dữ liệu tại đây, các phương thức sẽ tự động truy vấn DB
     }
-
-    /**
-     * Thêm thẻ mới vào cơ sở dữ liệu.
-     * @return true nếu thêm thành công, false nếu thất bại (trùng lặp, lỗi DB).
-     */
     public boolean addCards(String englishWord, String vietnameseMeaning) {
-        String english = englishWord.trim();
-        String vietnamese = vietnameseMeaning.trim();
-
-        if (english.isEmpty() || vietnamese.isEmpty()) return false;
-
-        // Bỏ qua kiểm tra Regex ở đây, bạn có thể tự thêm lại sau nếu cần.
-        // Hoặc kiểm tra ở tầng Controller (CardControl).
-
-        // SQL: INSERT INTO flashcards (user_id, english_word, vietnamese_meaning) VALUES (?, ?, ?)
-        String sql = "INSERT INTO flashcards (user_id, english_word, vietnamese_meaning) VALUES (?, ?, ?)";
+//        String english = englishWord.trim();
+//        String vietnamese = vietnameseMeaning.trim();
+//
+//        if (english.isEmpty() || vietnamese.isEmpty()) return false;
+        String sql = "INSERT INTO flashcards (user_id, english_word, vietnamese_meaning, is_learned) VALUES (?, ?, ?,?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -41,129 +26,189 @@ public class FlashCardManager {
             if (conn == null) return false;
 
             pstmt.setInt(1, this.userId);
-            pstmt.setString(2, english);
-            pstmt.setString(3, vietnamese);
-
-            // Thực thi INSERT
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0;
-
-        } catch (SQLException e) {
-            // Lỗi SQL, có thể do trùng UNIQUE KEY (user_id, english_word)
-            System.err.println("LỖI THÊM THẺ: " + e.getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Xóa thẻ khỏi cơ sở dữ liệu.
-     * @return true nếu xóa thành công, false nếu không tìm thấy hoặc lỗi.
-     */
-    public boolean removeCards(String englishWord, String vietnameseMeaning) {
-        if (englishWord == null || englishWord.trim().isEmpty()){
-            return false;
-        }
-
-        // Chúng ta chỉ cần từ Tiếng Anh và user_id để xóa vì đã có UNIQUE KEY
-        String sql = "DELETE FROM flashcards WHERE user_id = ? AND english_word = ?";
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            if (conn == null) return false;
-
-            pstmt.setInt(1, this.userId);
+            // SỬA LỖI: Dùng đúng tên biến tham số truyền vào
             pstmt.setString(2, englishWord.trim());
+            pstmt.setString(3, vietnameseMeaning.trim());
+            pstmt.setBoolean(4, false); // se mặc định chưa thuộc
 
-            // Thực thi DELETE
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0; // Trả về true nếu có ít nhất 1 dòng bị ảnh hưởng
+            return pstmt.executeUpdate() >0;
 
         } catch (SQLException e) {
-            System.err.println("LỖI XÓA THẺ: " + e.getMessage());
+            e.printStackTrace();
+//            System.err.println("LỖI THÊM THẺ: " + e.getMessage());
             return false;
         }
     }
 
-    /**
-     * Lấy tất cả các thẻ của người dùng hiện tại từ cơ sở dữ liệu.
-     */
-    public List<FlashCard> getAllCards() {
-        List<FlashCard> cards = new ArrayList<>();
-        // SQL: SELECT english_word, vietnamese_meaning FROM flashcards WHERE user_id = ?
-        String sql = "SELECT english_word, vietnamese_meaning FROM flashcards WHERE user_id = ?";
+    // Thêm thẻ
+    public boolean updateCards(int cardId, String englishWord, String vietnameseMeaning) {
+        String sql =  "UPDATE flashcards SET english_word = ?, vietnamese_meaning = ? WHERE card_id = ? AND user_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            if (conn == null) return false;
+
+            pstmt.setString(1, englishWord.trim());
+            pstmt.setString(2, vietnameseMeaning.trim());
+            pstmt.setInt(3, cardId);
+            pstmt.setInt(4, this.userId); // Bảo mật: Chỉ sửa thẻ của chính mình
+
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    //  XÓA THẺ
+    public boolean deleteCard(int cardId) {
+        String sql = "DELETE FROM flashcards WHERE card_id = ? AND user_id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            if (conn == null) return cards;
+            if (conn == null) return false;
 
+            pstmt.setInt(1, cardId);
+            pstmt.setInt(2, this.userId);
+
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    //  CẬP NHẬT TRẠNG THÁI ĐÃ THUỘC
+    public boolean toggleLearnedStatus(int cardId, boolean isLearned) {
+        String sql = "UPDATE flashcards SET is_learned = ? WHERE card_id = ? AND user_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            if (conn == null) return false;
+
+            pstmt.setBoolean(1, isLearned);
+            pstmt.setInt(2, cardId);
+            pstmt.setInt(3, this.userId);
+
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // LẤY TẤT CẢ THẺ
+    public List<FlashCard> getAllCards() {
+        // SỬA LỖI: Đặt tên biến là 'list' để khớp với lệnh return ở dưới
+        List<FlashCard> list = new ArrayList<>();
+
+        String sql = "SELECT * FROM flashcards WHERE user_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            if (conn == null) return list;
             pstmt.setInt(1, this.userId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    String english = rs.getString("english_word");
-                    String vietnamese = rs.getString("vietnamese_meaning");
-                    cards.add(new FlashCard(english, vietnamese));
+                    int id = rs.getInt("card_id");
+                    String en = rs.getString("english_word");
+                    String vn = rs.getString("vietnamese_meaning");
+                    boolean learned = rs.getBoolean("is_learned");
+
+                    // Đoạn này sẽ hết lỗi sau khi bạn làm BƯỚC 1
+                    list.add(new FlashCard(id, en, vn, learned));
                 }
             }
         } catch (SQLException e) {
-            System.err.println("LỖI LẤY THẺ: " + e.getMessage());
+            e.printStackTrace();
         }
-        return cards;
+        return list;
     }
 
-    /**
-     * Lấy một thẻ ngẫu nhiên từ cơ sở dữ liệu.
-     */
+    // TÌM KIẾM THẺ
+    public List<FlashCard> searchCards(String keyword) {
+        List<FlashCard> list = new ArrayList<>();
+        String sql = "SELECT * FROM flashcards WHERE user_id = ? AND (english_word LIKE ? OR vietnamese_meaning LIKE ?)";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            if (conn == null) return list;
+
+            String searchPattern = "%" + keyword.trim() + "%";
+
+            pstmt.setInt(1, this.userId);
+            pstmt.setString(2, searchPattern);
+            pstmt.setString(3, searchPattern);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new FlashCard(
+                            rs.getInt("card_id"),
+                            rs.getString("english_word"),
+                            rs.getString("vietnamese_meaning"),
+                            rs.getBoolean("is_learned")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // LẤY NGẪU NHIÊN
     public FlashCard getRandomCard() {
-        // Cách tối ưu hóa: thay vì lấy tất cả rồi chọn ngẫu nhiên, ta dùng ORDER BY RAND() LIMIT 1
-        String sql = "SELECT english_word, vietnamese_meaning FROM flashcards WHERE user_id = ? ORDER BY RAND() LIMIT 1";
+        String sql = "SELECT * FROM flashcards WHERE user_id = ? ORDER BY RAND() LIMIT 1";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             if (conn == null) return null;
-
             pstmt.setInt(1, this.userId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    String english = rs.getString("english_word");
-                    String vietnamese = rs.getString("vietnamese_meaning");
-                    return new FlashCard(english, vietnamese);
+                    return new FlashCard(
+                            rs.getInt("card_id"),
+                            rs.getString("english_word"),
+                            rs.getString("vietnamese_meaning"),
+                            rs.getBoolean("is_learned")
+                    );
                 }
             }
         } catch (SQLException e) {
-            System.err.println("LỖI LẤY THẺ NGẪU NHIÊN: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
 
-    /**
-     * Lấy số lượng thẻ hiện có.
-     */
-    public int getCardsCount() {
-        String sql = "SELECT COUNT(*) FROM flashcards WHERE user_id = ?";
-
+    //  THỐNG KÊ
+    public String getStatistics() {
+        int total = 0;
+        int learned = 0;
+        String sql = "SELECT COUNT(*) as total, SUM(CASE WHEN is_learned = 1 THEN 1 ELSE 0 END) as learned FROM flashcards WHERE user_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            if (conn == null) return 0;
-
+            if (conn == null) return "N/A";
             pstmt.setInt(1, this.userId);
 
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
+            try(ResultSet rs = pstmt.executeQuery()){
+                if(rs.next()){
+                    total = rs.getInt("total");
+                    learned = rs.getInt("learned");
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("LỖI ĐẾM THẺ: " + e.getMessage());
+        } catch(SQLException e){
+            e.printStackTrace();
         }
-        return 0;
+        return "Tổng số thẻ: " + total + " | Đã thuộc: " + learned;
     }
-
-    // Các phương thức khác (như toFileString) có thể bị loại bỏ
-    // ...
 }
+

@@ -6,10 +6,40 @@ public class FlashCard  {
 
     private String englishWord;
     private String vietnameseMeaning;
+    private int id;
+    private boolean isLearned;
 
-    public FlashCard(String englishWord, String vietnameseMeaning) {
+
+    public FlashCard(int id ,String englishWord, String vietnameseMeaning,  boolean isLearned) {
         this.englishWord = englishWord;
         this.vietnameseMeaning = vietnameseMeaning;
+        this.id = id;
+        this.isLearned = isLearned;
+    }
+
+    public FlashCard(String vietnameseMeaning, String englishWord) {
+        this.vietnameseMeaning = vietnameseMeaning;
+        this.englishWord = englishWord;
+        this.isLearned = false;
+    }
+
+    //getter setter
+
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public boolean isLearned() {
+        return isLearned;
+    }
+
+    public void setLearned(boolean learned) {
+        isLearned = learned;
     }
 
     // lay tu tieng viet , tieng anh
@@ -31,9 +61,7 @@ public class FlashCard  {
 
     @Override
     public String toString() {
-        return  "Tiếng Anh : " +" " +  englishWord +
-                "\nTiếng Việt: " +" "+ vietnameseMeaning +
-                "\n " ;
+        return englishWord + " - " + vietnameseMeaning + (isLearned ? " (Đã thuộc)" : "");
     }
 
     @Override
@@ -41,15 +69,15 @@ public class FlashCard  {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FlashCard flashCard = (FlashCard) o;
-        return Objects.equals(englishWord.toLowerCase(), flashCard.englishWord.toLowerCase());
+        return id== flashCard.id;
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(englishWord.toLowerCase());
+        return Objects.hash(id);
     }
-    public String toFileString(){
-        return englishWord + "|" + vietnameseMeaning;
-    }
+//    public String toFileString(){
+//        return englishWord + "|" + vietnameseMeaning;
+//    }
 }
