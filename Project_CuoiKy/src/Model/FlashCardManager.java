@@ -26,10 +26,10 @@ public class FlashCardManager {
             if (conn == null) return false;
 
             pstmt.setInt(1, this.userId);
-            // SỬA LỖI: Dùng đúng tên biến tham số truyền vào
+
             pstmt.setString(2, englishWord.trim());
             pstmt.setString(3, vietnameseMeaning.trim());
-            pstmt.setBoolean(4, false); // se mặc định chưa thuộc
+            pstmt.setBoolean(4, false);
 
             return pstmt.executeUpdate() >0;
 
@@ -51,7 +51,7 @@ public class FlashCardManager {
             pstmt.setString(1, englishWord.trim());
             pstmt.setString(2, vietnameseMeaning.trim());
             pstmt.setInt(3, cardId);
-            pstmt.setInt(4, this.userId); // Bảo mật: Chỉ sửa thẻ của chính mình
+            pstmt.setInt(4, this.userId);
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -80,7 +80,6 @@ public class FlashCardManager {
         }
     }
 
-    //  CẬP NHẬT TRẠNG THÁI ĐÃ THUỘC
     public boolean toggleLearnedStatus(int cardId, boolean isLearned) {
         String sql = "UPDATE flashcards SET is_learned = ? WHERE card_id = ? AND user_id = ?";
 
@@ -100,9 +99,8 @@ public class FlashCardManager {
         }
     }
 
-    // LẤY TẤT CẢ THẺ
+
     public List<FlashCard> getAllCards() {
-        // SỬA LỖI: Đặt tên biến là 'list' để khớp với lệnh return ở dưới
         List<FlashCard> list = new ArrayList<>();
 
         String sql = "SELECT * FROM flashcards WHERE user_id = ?";
@@ -120,7 +118,6 @@ public class FlashCardManager {
                     String vn = rs.getString("vietnamese_meaning");
                     boolean learned = rs.getBoolean("is_learned");
 
-                    // Đoạn này sẽ hết lỗi sau khi bạn làm BƯỚC 1
                     list.add(new FlashCard(id, en, vn, learned));
                 }
             }
@@ -130,7 +127,6 @@ public class FlashCardManager {
         return list;
     }
 
-    // TÌM KIẾM THẺ
     public List<FlashCard> searchCards(String keyword) {
         List<FlashCard> list = new ArrayList<>();
         String sql = "SELECT * FROM flashcards WHERE user_id = ? AND (english_word LIKE ? OR vietnamese_meaning LIKE ?)";

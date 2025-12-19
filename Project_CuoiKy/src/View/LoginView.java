@@ -44,7 +44,6 @@ public class LoginView extends JFrame {
         setVisible(true);
     }
 
-    // --- INNER CLASS: NÚT BẤM HIỆN ĐẠI (Tái sử dụng style) ---
     class ModernButton extends JButton {
         public ModernButton(String text, Color bgColor) {
             super(text);
@@ -81,7 +80,6 @@ public class LoginView extends JFrame {
         return tf;
     }
 
-    // Helper: Tạo PasswordField đẹp
     private JPasswordField createStyledPasswordField() {
         JPasswordField pf = new JPasswordField();
         pf.setFont(MAIN_FONT);
@@ -92,11 +90,9 @@ public class LoginView extends JFrame {
     }
 
     private void setupLayout() {
-        // Main Container với GridBagLayout để căn giữa mọi thứ
         JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBackground(BACKGROUND_COLOR);
 
-        // Card Panel (Khung trắng ở giữa)
         JPanel cardPanel = new JPanel();
         cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
         cardPanel.setBackground(WHITE_COLOR);
@@ -105,7 +101,7 @@ public class LoginView extends JFrame {
                 new EmptyBorder(30, 40, 30, 40) // Padding lề rộng
         ));
 
-        // 1. Tiêu đề
+
         JLabel titleLabel = new JLabel("Chào Mừng!");
         titleLabel.setFont(TITLE_FONT);
         titleLabel.setForeground(TEXT_COLOR);
@@ -116,7 +112,6 @@ public class LoginView extends JFrame {
         subTitleLabel.setForeground(Color.GRAY);
         subTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // 2. Form nhập liệu
         JPanel formPanel = new JPanel(new GridLayout(4, 1, 0, 8)); // 4 dòng, cách nhau 8px
         formPanel.setBackground(WHITE_COLOR);
         formPanel.setBorder(new EmptyBorder(20, 0, 20, 0)); // Cách trên dưới
@@ -132,25 +127,20 @@ public class LoginView extends JFrame {
         formPanel.add(passLbl);
         formPanel.add(passwordField);
 
-        // 3. Nút bấm
+        // Các nút bấm
         JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 0, 10)); // 2 nút chồng lên nhau
         buttonPanel.setBackground(WHITE_COLOR);
         buttonPanel.add(loginButton);
         buttonPanel.add(registerButton);
-
-        // Thêm tất cả vào Card Panel
         cardPanel.add(titleLabel);
         cardPanel.add(subTitleLabel);
         cardPanel.add(formPanel);
         cardPanel.add(buttonPanel);
-
-        // Thêm Card Panel vào Frame
         mainPanel.add(cardPanel);
         setContentPane(mainPanel);
     }
 
     private void setupListeners() {
-        // --- Login action ---
         loginButton.addActionListener(e -> {
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword()).trim();
@@ -165,8 +155,8 @@ public class LoginView extends JFrame {
             if(currentUser != null){
                 FlashCardManager flashCardManager = currentUser.getFlashCardManager();
                 CardControl controller = new CardControl(flashCardManager);
-                new FlashCardAppView(controller); // Mở màn hình chính
-                dispose(); // Đóng màn hình này
+                new FlashCardAppView(controller);
+                dispose();
             } else {
                 JOptionPane.showMessageDialog(this,
                         "Sai tài khoản hoặc mật khẩu!",
@@ -174,13 +164,14 @@ public class LoginView extends JFrame {
             }
         });
 
-        // --- Register action ---
+        // đăng ký tk
         registerButton.addActionListener(e -> {
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword()).trim();
 
             if(username.isEmpty() || password.isEmpty()){
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Vui lòng nhập đầy đủ thông tin!", "Thông báo", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -195,7 +186,6 @@ public class LoginView extends JFrame {
             }
         });
 
-        // Enter key shortcut for login
         passwordField.addActionListener(e -> loginButton.doClick());
     }
 }

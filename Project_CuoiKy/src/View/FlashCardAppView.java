@@ -8,7 +8,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
@@ -20,12 +19,12 @@ import java.util.List;
 public class FlashCardAppView extends JFrame {
     private final CardControl controller;
 
-    private final Color PRIMARY_COLOR = new Color(52, 152, 219);   // Xanh dương
-    private final Color SUCCESS_COLOR = new Color(46, 204, 113);   // Xanh lá
-    private final Color DANGER_COLOR = new Color(46, 204, 113);     // Đỏ
-    private final Color WARNING_COLOR = new Color(241, 196, 15);   // Vàng cam
-    private final Color BACKGROUND_COLOR = new Color(245, 246, 250); // Xám nhạt nền
-    private final Color TEXT_COLOR = new Color(26, 38, 49);        // Xám đậm chữ
+    private final Color PRIMARY_COLOR = new Color(52, 152, 219);
+    private final Color SUCCESS_COLOR = new Color(46, 204, 113);
+    private final Color DANGER_COLOR = new Color(46, 204, 113);
+    private final Color WARNING_COLOR = new Color(241, 196, 15);
+    private final Color BACKGROUND_COLOR = new Color(245, 246, 250);
+    private final Color TEXT_COLOR = new Color(26, 38, 49);
     private final Font MAIN_FONT = new Font("Segoe UI", Font.PLAIN, 14);
     private final Font HEADER_FONT = new Font("Segoe UI", Font.BOLD, 16);
 
@@ -118,7 +117,7 @@ public class FlashCardAppView extends JFrame {
         updateButton.setEnabled(false);
         removeButton.setEnabled(false);
 
-        // --- 2. CẤU HÌNH JTABLE ĐẸP ---
+        //chia 2 bang
         String[] columnNames = {"ID", "Tiếng Anh", "Tiếng Việt", "Đã thuộc"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
@@ -138,11 +137,9 @@ public class FlashCardAppView extends JFrame {
         cardTable.setShowVerticalLines(false);
         cardTable.setSelectionBackground(new Color(220, 230, 241));
         cardTable.setSelectionForeground(Color.BLACK);
-
-        // Ẩn cột ID
         cardTable.removeColumn(cardTable.getColumnModel().getColumn(0));
 
-        // Style Header của bảng
+        // header
         JTableHeader header = cardTable.getTableHeader();
         header.setFont(HEADER_FONT);
         header.setBackground(PRIMARY_COLOR);
@@ -153,7 +150,6 @@ public class FlashCardAppView extends JFrame {
         statsLabel.setFont(new Font("Segoe UI", Font.ITALIC, 12));
         statsLabel.setForeground(Color.DARK_GRAY);
 
-        // --- 3. KHỞI TẠO TABS ---
         // Tab 1
         fcQuestionLabel = new JLabel("Sẵn sàng?", SwingConstants.CENTER);
         fcQuestionLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
@@ -197,32 +193,32 @@ public class FlashCardAppView extends JFrame {
         tf.setFont(MAIN_FONT);
         tf.setBorder(BorderFactory.createCompoundBorder(
                 new LineBorder(new Color(200, 200, 200), 1),
-                new EmptyBorder(8, 8, 8, 8))); // Padding bên trong
+                new EmptyBorder(8, 8, 8, 8)));
         return tf;
     }
 
     private void setupLayout() {
-        // --- CHIA 2 CỘT ---
+        //chia 2 ben
         JPanel mainContainer = new JPanel(new GridLayout(1, 2, 20, 0));
         mainContainer.setBackground(BACKGROUND_COLOR);
-        mainContainer.setBorder(new EmptyBorder(20, 20, 20, 20)); // Padding toàn màn hình
+        mainContainer.setBorder(new EmptyBorder(20, 20, 20, 20));
 
         // === CỘT TRÁI (QUẢN LÝ) ===
         JPanel leftPanel = new JPanel(new BorderLayout(10, 10));
         leftPanel.setBackground(Color.WHITE);
         leftPanel.setBorder(BorderFactory.createCompoundBorder(
                 new LineBorder(new Color(230, 230, 230), 1),
-                new EmptyBorder(15, 15, 15, 15) // Padding trong panel trắng
+                new EmptyBorder(15, 15, 15, 15)
         ));
 
-        // 1. Header Tìm kiếm
+        // Header Tìm kiếm
         JPanel topPanel = new JPanel(new BorderLayout(5, 5));
         topPanel.setBackground(Color.WHITE);
         JLabel titleLbl = new JLabel("QUẢN LÝ THẺ");
         titleLbl.setFont(HEADER_FONT);
         titleLbl.setForeground(PRIMARY_COLOR);
 
-        searchField.putClientProperty("JTextField.placeholderText", "Tìm kiếm..."); // (Java 9+) hoặc dùng label
+        searchField.putClientProperty("JTextField.placeholderText", "Tìm kiếm...");
         JPanel searchPnl = new JPanel(new BorderLayout());
         searchPnl.setBackground(Color.WHITE);
         searchPnl.add(new JLabel("🔍 "), BorderLayout.WEST);
@@ -231,7 +227,7 @@ public class FlashCardAppView extends JFrame {
         topPanel.add(titleLbl, BorderLayout.NORTH);
         topPanel.add(searchPnl, BorderLayout.SOUTH);
 
-        // 2. Form nhập liệu
+        //Form nhập liệu
         JPanel formPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         formPanel.setBackground(Color.WHITE);
         formPanel.setBorder(new EmptyBorder(10, 0, 10, 0));
@@ -240,8 +236,8 @@ public class FlashCardAppView extends JFrame {
         formPanel.add(new JLabel("Tiếng Việt:"));
         formPanel.add(vietnameseInput);
 
-        // 3. Nút bấm
-        JPanel btnPanel = new JPanel(new GridLayout(1, 5, 5, 0)); // Grid đều nhau
+        // Nút bấm
+        JPanel btnPanel = new JPanel(new GridLayout(1, 5, 5, 0));
         btnPanel.setBackground(Color.WHITE);
         btnPanel.add(addButton);
         btnPanel.add(updateButton);
@@ -264,12 +260,10 @@ public class FlashCardAppView extends JFrame {
         leftPanel.add(statsLabel, BorderLayout.SOUTH);
 
 
-        // === CỘT PHẢI (LUYỆN TẬP) ===
+
         tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
         tabbedPane.setBackground(Color.WHITE);
-
-        // Tạo layout cho các tab
         tabbedPane.addTab("Học Flashcard", createFlashcardTab());
         tabbedPane.addTab("Trắc Nghiệm", createQuizTab());
         tabbedPane.addTab("Luyện Gõ", createTypeTab());
@@ -280,7 +274,7 @@ public class FlashCardAppView extends JFrame {
         setContentPane(mainContainer);
     }
 
-    // --- HÀM TẠO GIAO DIỆN TỪNG TAB ---
+    // giao diện của các tab
     private JPanel createFlashcardTab() {
         JPanel p = new JPanel(new BorderLayout());
         p.setBackground(Color.WHITE);
@@ -345,9 +339,7 @@ public class FlashCardAppView extends JFrame {
         return p;
     }
 
-
-    // --- LOGIC XỬ LÝ (KHÔNG ĐỔI SO VỚI TRƯỚC) ---
-    // Copy nguyên phần logic cũ vào đây
+    // logic các tab
     private void loadDataToTable(List<FlashCard> cards) {
         tableModel.setRowCount(0);
         for (FlashCard c : cards) {
